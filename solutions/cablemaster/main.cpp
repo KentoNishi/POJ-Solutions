@@ -1,4 +1,4 @@
-// url
+// http://poj.org/problem?id=1064
 
 #include <algorithm>
 #include <cmath>
