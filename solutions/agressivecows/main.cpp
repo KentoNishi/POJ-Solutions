@@ -11,6 +11,18 @@ int N, C;
 vector<int> stalls;
 
 bool test(int num) {
+    int prev = stalls[0];
+    int count = 1;
+    for (int i = 1; i < N; i++) {
+        if (stalls[i] - prev >= num) {
+            count++;
+            prev = stalls[i];
+        }
+        if (count >= C) {
+            return true;
+        }
+    }
+    return count >= C;
 }
 
 int main() {
@@ -21,7 +33,7 @@ int main() {
     }
     sort(stalls.begin(), stalls.end());
     int lower = 0;
-    int upper = N - 1;
+    int upper = stalls[N - 1];
     while (lower < upper - 1) {
         int mid = (lower + upper) / 2;
         if (test(mid)) {
