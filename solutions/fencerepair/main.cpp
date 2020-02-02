@@ -4,6 +4,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <queue>
 #include <string>
 #include <vector>
 using namespace std;
@@ -11,19 +12,13 @@ using namespace std;
 int main() {
     int N;
     cin >> N;
-    vector<int> lengths;
-    lengths.resize(N);
+    priority_queue<long long, vector<long long>, greater<long long>> lengths;
     int length = 0;
     for (int i = 0; i < N; i++) {
-        cin >> lengths[i];
-        length += lengths[i];
+        long long a;
+        cin >> a;
+        lengths.emplace(a);
     }
-    sort(lengths.begin(), lengths.end(), greater<int>());
-    long long cost = 0;
-    for (int i = 0; i < N - 1; i++) {
-        cost += length;
-        length -= lengths[i];
-    }
-    cout << cost << endl;
+    
     return 0;
 }
