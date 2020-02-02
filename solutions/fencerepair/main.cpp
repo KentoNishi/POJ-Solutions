@@ -19,6 +19,5 @@ int main() {
         cin >> a;
         lengths.emplace(a);
     }
-    
     return 0;
 }
