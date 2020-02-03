@@ -17,7 +17,17 @@ int main() {
     for (int i = 0; i < N; i++) {
         long long a;
         cin >> a;
-        lengths.emplace(a);
+        lengths.push(a);
     }
+    long long ans = 0;
+    while (lengths.size() > 1) {
+        long long small1 = lengths.top();
+        lengths.pop();
+        long long small2 = lengths.top();
+        lengths.pop();
+        ans += small1 + small2;
+        lengths.push(small1 + small2);
+    }
+    cout << ans << endl;
     return 0;
 }
