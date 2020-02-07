@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -12,25 +13,31 @@ int main() {
     int P;
     cin >> P;
     vector<int> pages = vector<int>(P);
-    set<int> topics;
+    set<int> bookTopics;
     for (int i = 0; i < P; i++) {
         cin >> pages[i];
-        topics.insert(pages[i]);
+        bookTopics.insert(pages[i]);
     }
-    int numTopics = topics.size();
-    topics = set<int>();
+    int numTopics = bookTopics.size();
+    map<int, int> topics;
     int ans = P;
     int left = 0;
     int right = 0;
     while (left < P) {
         while (right < P && topics.size() < numTopics) {
-            topics.insert(pages[right]);
+            topics[pages[right]]++;
             right++;
         }
         if (right < P) {
-            ans = min(ans, right - left);
+            ans = min(ans, right - left + 1);
+        } else {
+            right = P - 1;
+            topics[pages[right]]--;
         }
-        topics.erase(pages[left]);
+        topics[pages[left]]--;
+        if (topics[pages[left]] == 0) {
+            topics.erase(pages[left]);
+        }
         left++;
     }
     cout << ans << endl;
