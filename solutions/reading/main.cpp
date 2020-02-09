@@ -10,6 +10,8 @@
 using namespace std;
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
     int N;
     cin >> N;
     vector<int> pages = vector<int>(N);
@@ -23,22 +25,20 @@ int main() {
     int left = 0;
     int right = 0;
     int ans = N;
-    int size = 0;
     while (left < N) {
         // cout << left << "," << right << endl;
-        while (right < N && size != numTopics) {
+        while (right < N && topics.size() != numTopics) {
             topics[pages[right]]++;
-            if (topics[pages[right]] == 1) {
-                size++;
-            }
             right++;
         }
-        if (size == numTopics) {
+        if (topics.size() == numTopics) {
             ans = min(ans, right - left);
+        } else {
+            break;
         }
         topics[pages[left]]--;
         if (topics[pages[left]] == 0) {
-            size--;
+            topics.erase(pages[left]);
         }
         left++;
     }
