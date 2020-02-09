@@ -13,35 +13,33 @@ int main() {
     int N;
     cin >> N;
     vector<int> pages = vector<int>(N);
-    set<int> allTopics;
     for (int i = 0; i < N; i++) {
         cin >> pages[i];
+    }
+    set<int> allTopics;
+    for (int i = 0; i < N; i++) {
         allTopics.insert(pages[i]);
     }
     int numTopics = allTopics.size();
+    map<int, int> windowTopics;
     int left = 0;
     int right = 0;
+    windowTopics[pages[0]]++;
     int ans = N;
-    map<int, int> topics;
     while (left < N) {
-        while (right < N && topics.size() != numTopics) {
-            topics[pages[right]]++;
+        while (right < N - 1 && windowTopics.size() != numTopics) {
             right++;
+            windowTopics[pages[right]]++;
         }
-        if (right == N && topics.size() != numTopics) {
-            break;
-        }
-        right--;
-        // cout << left << " - " << right << " has " << topics.size() << " topics" << endl;
-        if (topics.size() == numTopics) {
+        if (windowTopics.size() == numTopics) {
+            cout << left << " " << right << endl;
             ans = min(ans, right - left + 1);
         }
-        topics[pages[left]]--;
-        if (topics[pages[left]] == 0) {
-            topics.erase(pages[left]);
+        windowTopics[pages[left]]--;
+        if (windowTopics[pages[left]] == 0) {
+            windowTopics.erase(pages[left]);
         }
         left++;
-        right++;
     }
     cout << ans << endl;
     return 0;
