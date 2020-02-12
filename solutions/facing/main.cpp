@@ -1,0 +1,14 @@
+// http://poj.org/problem?id=3276
+
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    return 0;
+}
