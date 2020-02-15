@@ -12,38 +12,27 @@ int N;
 
 int countFlips(vector<bool> line, int windowSize) {
     int flips = 0;
-    // window sliding
-    // have a flag that reverses
-    // until it hits a point
-    // might work, might not, don't know yet
-    bool flipFlag = false;
-    queue<int> flags;
-    for (int i = 0; i <= N - windowSize; i++) {
-        if (flags.size() > 0) {
-            int top = flags.front();
-            if (top == i) {
-                flipFlag = !flipFlag;
-                flags.pop();
-            }
+    bool flipped = false;
+    vector<int> toFlip = vector<int>(N + 1);
+    for (int i = 0; i < N; i++) {
+        if (toFlip[i] % 2 == 1) {
+            flipped = !flipped;
         }
-        if (flipFlag) {
+        if (flipped) {
             line[i] = !line[i];
         }
-        if (!line[i]) {
-            if (i + windowSize <= N) {
-                flipFlag = !flipFlag;
-                line[i] = true;
-                flags.push(i + windowSize);
-                flips++;
-            }
+        if (!line[i] && i + windowSize <= N) {
+            line[i] = true;
+            toFlip[i + windowSize]++;
+            flipped = !flipped;
+            flips++;
         }
     }
-
     for (int i = 0; i < N; i++) {
-        cout << line[i] << " ";
+        if (!line[i]) {
+            return -1;
+        }
     }
-    cout << endl;
-
     return flips;
 }
 
