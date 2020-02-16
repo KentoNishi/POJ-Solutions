@@ -17,11 +17,11 @@ bool get(int &arr, int bit) {
     return (arr & (1 << bit)) ? 1 : 0;
 }
 
-string bitStr(int &arr) {
+string bitStr(int &arr, int digits = 0) {
     string s = "";
     int current = 1;
     int digit = 0;
-    while (current <= arr) {
+    while ((digits == 0 && current <= arr) || digit < digits) {
         current *= 2;
         s = (get(arr, digit) ? "1" : "0") + s;
         digit++;
