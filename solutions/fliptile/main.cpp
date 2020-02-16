@@ -40,9 +40,9 @@ string bitStr(int arr, int digits = 0) {
 void printGrid(vector<int> &lines) {
     for (int i = 0; i < M; i++) {
         string s = bitStr(lines[i], N);
-        for (int i = 0; i < s.size(); i++) {
+        for (int i = N - 1; i >= 0; i--) {
             cout << s[i];
-            if (i != s.size() - 1) {
+            if (i > 0) {
                 cout << " ";
             }
         }
@@ -65,7 +65,7 @@ int main() {
         }
     }
     vector<int> ans;
-    int minFlips = M * N;
+    int minFlips = M * N + 1;
     for (int firstLine = 0; firstLine < pow(2.0, N); firstLine++) {
         vector<int> lines = grid;
         vector<int> flips = vector<int>(M);
