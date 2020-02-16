@@ -21,11 +21,11 @@ void clear(int &arr, int bit) {
     arr = arr & (~(1 << bit));
 }
 
-bool get(int &arr, int bit) {
+bool get(int arr, int bit) {
     return (arr & (1 << bit)) ? 1 : 0;
 }
 
-string bitStr(int &arr, int digits = 0) {
+string bitStr(int arr, int digits = 0) {
     string s = "";
     int current = 1;
     int digit = 0;
@@ -35,6 +35,19 @@ string bitStr(int &arr, int digits = 0) {
         digit++;
     }
     return s;
+}
+
+void printGrid(vector<int> &lines) {
+    for (int i = 0; i < M; i++) {
+        string s = bitStr(lines[i], N);
+        for (int i = 0; i < s.size(); i++) {
+            cout << s[i];
+            if (i != s.size() - 1) {
+                cout << " ";
+            }
+        }
+        cout << endl;
+    }
 }
 
 int main() {
@@ -51,8 +64,56 @@ int main() {
             }
         }
     }
-    for (int i = 0; i < M; i++) {
-        cout << bitStr(grid[i], N) << endl;
+    vector<int> ans;
+    int minFlips = M * N;
+    for (int firstLine = 0; firstLine < pow(2.0, N); firstLine++) {
+        vector<int> lines = grid;
+        vector<int> flips = vector<int>(M);
+        int totalFlips = 0;
+        flips[0] = firstLine;
+        for (int j = 0; j < N; j++) {
+            if (get(flips[0], j)) {
+                totalFlips++;
+                toggle(lines[0], j);
+                toggle(lines[1], j);
+                if (j > 0) {
+                    toggle(lines[0], j - 1);
+                }
+                if (j < N - 1) {
+                    toggle(lines[0], j + 1);
+                }
+            }
+        }
+        for (int i = 1; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                if (get(lines[i - 1], j)) {
+                    totalFlips++;
+                    set(flips[i], j);
+                    toggle(lines[i], j);
+                    toggle(lines[i - 1], j);
+                    if (i < M - 1) {
+                        toggle(lines[i + 1], j);
+                    }
+                    if (j > 0) {
+                        toggle(lines[i], j - 1);
+                    }
+                    if (j < N - 1) {
+                        toggle(lines[i], j + 1);
+                    }
+                }
+            }
+        }
+        if (lines[M - 1] == 0) {
+            if (totalFlips < minFlips) {
+                ans = flips;
+                minFlips = totalFlips;
+            }
+        }
+    }
+    if (ans.size() == 0) {
+        cout << "IMPOSSIBLE" << endl;
+    } else {
+        printGrid(ans);
     }
     return 0;
 }
