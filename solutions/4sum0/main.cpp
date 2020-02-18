@@ -21,18 +21,25 @@ int main() {
             cin >> vals[j][i];
         }
     }
-    map<int, int> waysWithAB;
+    vector<int> sumsAB;
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            waysWithAB[-(vals[0][i] + vals[1][j])]++;
+            int a = vals[0][i];
+            int b = vals[1][j];
+            sumsAB.push_back(-(a + b));
         }
     }
+    sort(sumsAB.begin(), sumsAB.end());
     int ans = 0;
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             int c = vals[2][i];
             int d = vals[3][j];
-            ans += waysWithAB[c + d];
+            vector<int>::iterator lower = lower_bound(sumsAB.begin(), sumsAB.end(), c + d);
+            if (lower != sumsAB.end()) {
+                vector<int>::iterator upper = upper_bound(sumsAB.begin(), sumsAB.end(), c + d);
+                ans += distance(lower, upper);
+            }
         }
     }
     cout << ans << endl;
