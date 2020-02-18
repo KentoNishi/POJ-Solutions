@@ -1,4 +1,4 @@
-// url
+// http://poj.org/problem?id=2785
 
 #include <algorithm>
 #include <cmath>
@@ -21,21 +21,20 @@ int main() {
             cin >> vals[j][i];
         }
     }
-    vector<map<int, int>> counts = vector<map<int, int>>(4);
+    map<int, int> waysWithAB;
     for (int i = 0; i < N; i++) {
-        counts[0][vals[0][i]]++;
-    }
-    for (int slot = 1; slot < 4; slot++) {
-        for (int choice = 0; choice < N; choice++) {
-            for (map<int, int>::iterator it = counts[slot - 1].begin(); it != counts[slot - 1].end(); ++it) {
-                pair<int, int> p = *it;
-                int prevSum = p.first;
-                int prevCount = p.second;
-                int thisSum = prevSum + vals[slot][choice];
-                counts[slot][thisSum] += prevCount;
-            }
+        for (int j = 0; j < N; j++) {
+            waysWithAB[-(vals[0][i] + vals[1][j])]++;
         }
     }
-    cout << counts[3][0] << endl;
+    int ans = 0;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            int c = vals[2][i];
+            int d = vals[3][j];
+            ans += waysWithAB[c + d];
+        }
+    }
+    cout << ans << endl;
     return 0;
 }
