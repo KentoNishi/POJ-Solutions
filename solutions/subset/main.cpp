@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 using namespace std;
@@ -35,12 +36,28 @@ string bitStr(int arr, int digits = 0) {
     return s;
 }
 
+// abs() with long long doesn't exist before C++ 11
+long long absVal(long long num) {
+    return num < 0 ? (-num) : num;
+}
+
+map<long long, int>::iterator findClosest(map<long long, int> &sets, long long num) {
+    map<long long, int>::iterator iter = sets.lower_bound(num);
+    map<long long, int>::iterator ans = iter;
+    if (iter != sets.begin()) {
+        iter--;
+        if (ans == sets.end() || absVal(iter->first - num) < absVal(ans->first - num)) {
+            ans = iter;
+        }
+    }
+    return ans;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    while (true) {
-        int N;
-        cin >> N;
+    int N;
+    while (cin >> N) {
         if (N == 0) {
             break;
         }
@@ -48,30 +65,53 @@ int main() {
         for (int i = 0; i < N; i++) {
             cin >> nums[i];
         }
-        int leftSize = N / 2;
-        vector<pair<int, int>> leftSums;
-        for (int left = 0; left < pow(2.0, leftSize); left++) {
-            long long sum = 0;
-            int used = 0;
-            for (int i = 0; i < leftSize; i++) {
-                if (get(left, i)) {
-                    used++;
-                    sum += nums[i];
+        // cout << "===" << endl;
+        if (N == 1) {
+            cout << nums[0] << " " << 1 << endl;
+        } else {
+            int leftSize = N / 2;
+            int rightSize = N - leftSize;
+            map<long long, int> sets;
+            for (int bits = 1; bits < (1 << leftSize); bits++) {
+                int used = 0;
+                long long sum = 0;
+                for (int i = 0; i < leftSize; i++) {
+                    if (get(bits, i)) {
+                        sum += nums[i];
+                        used++;
+                    }
+                }
+                if (sets[sum] == 0) {
+                    sets[sum] = used;
+                } else {
+                    sets[sum] = min(sets[sum], used);
                 }
             }
-            leftSums.push_back(make_pair(sum, used));
-        }
-        sort(leftSums.begin(), leftSums.end());
-        for (int right = pow(2.0, leftSize); right < N; right++) {
-            long long sum = 0;
-            for (int i = leftSize; i < N; i++) {
-                if (get(right, i)) {
-                    sum += nums[i];
+            /*
+            for (auto p : sets) {
+                cout << p.first << "," << p.second << " ";
+            }
+            cout << endl;
+            */
+            pair<long long, int> ans = *findClosest(sets, 0);
+            sets[0] = 0;
+            for (int bits = 1; bits < (1 << rightSize); bits++) {
+                int used = 0;
+                long long sum = 0;
+                for (int i = 0; i < rightSize; i++) {
+                    if (get(bits, i)) {
+                        sum += nums[leftSize + i];
+                        used++;
+                    }
+                }
+                pair<long long, int> closest = *findClosest(sets, -sum);
+                // cout << "Closest to " << sum << " was " << closest.first << endl;
+                if (absVal(closest.first + sum) < ans.first || (absVal(closest.first + sum) == ans.first && closest.second + used < ans.second)) {
+                    ans.first = absVal(closest.first + sum);
+                    ans.second = closest.second + used;
                 }
             }
-            vector<pair<int, int>>::iterator lowerBound = lower_bound(leftSums.begin(), leftSums.end(), make_pair(-sum, numeric_limits<long long>::min()));
-            if (lowerBound != leftSums.end()) {
-            }
+            cout << ans.first << " " << ans.second << endl;
         }
     }
     return 0;
