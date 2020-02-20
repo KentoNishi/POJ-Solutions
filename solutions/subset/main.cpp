@@ -3,31 +3,32 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <string>
 #include <vector>
 using namespace std;
 
-void set(int &arr, int bit) {
+void set(long long &arr, long long bit) {
     arr = arr | (1 << bit);
 }
 
-void toggle(int &arr, int bit) {
+void toggle(long long &arr, long long bit) {
     arr = arr ^ (1 << bit);
 }
 
-void clear(int &arr, int bit) {
+void clear(long long &arr, long long bit) {
     arr = arr & (~(1 << bit));
 }
 
-bool get(int arr, int bit) {
+bool get(long long arr, long long bit) {
     return (arr & (1 << bit)) ? 1 : 0;
 }
 
-string bitStr(int arr, int digits = 0) {
+string bitStr(long long arr, long long digits = 0) {
     string s = "";
-    int current = 1;
-    int digit = 0;
+    long long current = 1;
+    long long digit = 0;
     while ((digits == 0 && current <= arr) || digit < digits) {
         current *= 2;
         s = (get(arr, digit) ? "1" : "0") + s;
@@ -41,9 +42,14 @@ long long absVal(long long num) {
     return num < 0 ? (-num) : num;
 }
 
-pair<long long, int> findClosest(map<long long, int> &items, int num) {
-    map<long long, int>::iterator it = items.lower_bound(num);
-    pair<long long, int> ans = *it;
+pair<long long, long long> findClosest(map<long long, long long> &items, long long num) {
+    map<long long, long long>::iterator it = items.lower_bound(num);
+    pair<long long, long long> ans;
+    if (it == items.end()) {
+        ans = make_pair(numeric_limits<long long>::max(), 0);
+    } else {
+        ans = *it;
+    }
     if (it != items.begin()) {
         it--;
         if (absVal(it->first - num) < absVal(ans.first - num) || (absVal(it->first - num) == absVal(ans.first - num) && it->second < ans.second)) {
@@ -51,20 +57,19 @@ pair<long long, int> findClosest(map<long long, int> &items, int num) {
         }
         it++;
     }
+    it++;
     if (it != items.end()) {
-        it++;
         if (absVal(it->first - num) < absVal(ans.first - num) || (absVal(it->first - num) == absVal(ans.first - num) && it->second < ans.second)) {
             ans = *it;
         }
-        it--;
     }
     return ans;
 }
 
-pair<long long, int> tryZeros(map<long long, int> &possibleOnLeft, map<long long, int> &possibleOnRight) {
-    pair<long long, int> ans = findClosest(possibleOnLeft, 0);
+pair<long long, long long> tryZeros(map<long long, long long> &possibleOnLeft, map<long long, long long> &possibleOnRight) {
+    pair<long long, long long> ans = findClosest(possibleOnLeft, 0);
     ans.first = absVal(ans.first);
-    pair<long long, int> right = findClosest(possibleOnRight, 0);
+    pair<long long, long long> right = findClosest(possibleOnRight, 0);
     if (absVal(right.first) < absVal(ans.first) || (absVal(right.first) == absVal(ans.first) && right.second < ans.second)) {
         ans.first = absVal(right.first);
         ans.second = right.second;
@@ -72,14 +77,14 @@ pair<long long, int> tryZeros(map<long long, int> &possibleOnLeft, map<long long
     return ans;
 }
 
-void solve(int N, vector<int> &nums) {
-    int leftSize = N / 2;
-    int rightSize = N - leftSize;
-    map<long long, int> possibleOnLeft;
-    for (int bits = 1; bits < (1 << leftSize); bits++) {
-        int used = 0;
+void solve(long long N, vector<long long> &nums) {
+    long long leftSize = N / 2;
+    long long rightSize = N - leftSize;
+    map<long long, long long> possibleOnLeft;
+    for (long long bits = 1; bits < (1 << leftSize); bits++) {
+        long long used = 0;
         long long sum = 0;
-        for (int i = 0; i < leftSize; i++) {
+        for (long long i = 0; i < leftSize; i++) {
             if (get(bits, i)) {
                 used++;
                 sum += nums[i];
@@ -91,11 +96,11 @@ void solve(int N, vector<int> &nums) {
             possibleOnLeft[sum] = min(possibleOnLeft[sum], used);
         }
     }
-    map<long long, int> possibleOnRight;
-    for (int bits = 1; bits < (1 << rightSize); bits++) {
-        int used = 0;
+    map<long long, long long> possibleOnRight;
+    for (long long bits = 1; bits < (1 << rightSize); bits++) {
+        long long used = 0;
         long long sum = 0;
-        for (int i = 0; i < rightSize; i++) {
+        for (long long i = 0; i < rightSize; i++) {
             if (get(bits, i)) {
                 used++;
                 sum += nums[leftSize + i];
@@ -107,10 +112,10 @@ void solve(int N, vector<int> &nums) {
             possibleOnRight[sum] = min(possibleOnRight[sum], used);
         }
     }
-    pair<long long, int> ans = tryZeros(possibleOnLeft, possibleOnRight);
-    for (map<long long, int>::iterator it = possibleOnRight.begin(); it != possibleOnRight.end(); it++) {
-        pair<long long, int> right = *it;
-        pair<long long, int> left = findClosest(possibleOnLeft, -right.first);
+    pair<long long, long long> ans = tryZeros(possibleOnLeft, possibleOnRight);
+    for (map<long long, long long>::iterator it = possibleOnRight.begin(); it != possibleOnRight.end(); it++) {
+        pair<long long, long long> right = *it;
+        pair<long long, long long> left = findClosest(possibleOnLeft, -right.first);
         if (absVal(right.first + left.first) < ans.first || (absVal(right.first + left.first) == ans.first && left.second + right.second < ans.second)) {
             ans.first = absVal(right.first + left.first);
             ans.second = left.second + right.second;
@@ -122,17 +127,17 @@ void solve(int N, vector<int> &nums) {
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    int N;
+    long long N;
     while (cin >> N) {
         if (N == 0) {
             break;
         }
-        vector<int> nums = vector<int>(N);
-        for (int i = 0; i < N; i++) {
+        vector<long long> nums = vector<long long>(N);
+        for (long long i = 0; i < N; i++) {
             cin >> nums[i];
         }
         if (N == 1) {
-            cout << nums[0] << " " << 1 << endl;
+            cout << absVal(nums[0]) << " " << 1 << endl;
             continue;
         }
         solve(N, nums);
