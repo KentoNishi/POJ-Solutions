@@ -41,16 +41,82 @@ long long absVal(long long num) {
     return num < 0 ? (-num) : num;
 }
 
-map<long long, int>::iterator findClosest(map<long long, int> &sets, long long num) {
-    map<long long, int>::iterator iter = sets.lower_bound(num);
-    map<long long, int>::iterator ans = iter;
-    if (iter != sets.begin()) {
-        iter--;
-        if (ans == sets.end() || absVal(iter->first - num) < absVal(ans->first - num)) {
-            ans = iter;
+pair<long long, int> findClosest(map<long long, int> &items, int num) {
+    map<long long, int>::iterator it = items.lower_bound(num);
+    pair<long long, int> ans = *it;
+    if (it != items.begin()) {
+        it--;
+        if (absVal(it->first - num) < absVal(ans.first - num) || (absVal(it->first - num) == absVal(ans.first - num) && it->second < ans.second)) {
+            ans = *it;
         }
+        it++;
+    }
+    if (it != items.end()) {
+        it++;
+        if (absVal(it->first - num) < absVal(ans.first - num) || (absVal(it->first - num) == absVal(ans.first - num) && it->second < ans.second)) {
+            ans = *it;
+        }
+        it--;
     }
     return ans;
+}
+
+pair<long long, int> tryZeros(map<long long, int> &possibleOnLeft, map<long long, int> &possibleOnRight) {
+    pair<long long, int> ans = findClosest(possibleOnLeft, 0);
+    ans.first = absVal(ans.first);
+    pair<long long, int> right = findClosest(possibleOnRight, 0);
+    if (absVal(right.first) < absVal(ans.first) || (absVal(right.first) == absVal(ans.first) && right.second < ans.second)) {
+        ans.first = absVal(right.first);
+        ans.second = right.second;
+    }
+    return ans;
+}
+
+void solve(int N, vector<int> &nums) {
+    int leftSize = N / 2;
+    int rightSize = N - leftSize;
+    map<long long, int> possibleOnLeft;
+    for (int bits = 1; bits < (1 << leftSize); bits++) {
+        int used = 0;
+        long long sum = 0;
+        for (int i = 0; i < leftSize; i++) {
+            if (get(bits, i)) {
+                used++;
+                sum += nums[i];
+            }
+        }
+        if (possibleOnLeft[sum] == 0) {
+            possibleOnLeft[sum] = used;
+        } else {
+            possibleOnLeft[sum] = min(possibleOnLeft[sum], used);
+        }
+    }
+    map<long long, int> possibleOnRight;
+    for (int bits = 1; bits < (1 << rightSize); bits++) {
+        int used = 0;
+        long long sum = 0;
+        for (int i = 0; i < rightSize; i++) {
+            if (get(bits, i)) {
+                used++;
+                sum += nums[leftSize + i];
+            }
+        }
+        if (possibleOnRight[sum] == 0) {
+            possibleOnRight[sum] = used;
+        } else {
+            possibleOnRight[sum] = min(possibleOnRight[sum], used);
+        }
+    }
+    pair<long long, int> ans = tryZeros(possibleOnLeft, possibleOnRight);
+    for (map<long long, int>::iterator it = possibleOnRight.begin(); it != possibleOnRight.end(); it++) {
+        pair<long long, int> right = *it;
+        pair<long long, int> left = findClosest(possibleOnLeft, -right.first);
+        if (absVal(right.first + left.first) < ans.first || (absVal(right.first + left.first) == ans.first && left.second + right.second < ans.second)) {
+            ans.first = absVal(right.first + left.first);
+            ans.second = left.second + right.second;
+        }
+    }
+    cout << ans.first << " " << ans.second << endl;
 }
 
 int main() {
@@ -65,54 +131,11 @@ int main() {
         for (int i = 0; i < N; i++) {
             cin >> nums[i];
         }
-        // cout << "===" << endl;
         if (N == 1) {
             cout << nums[0] << " " << 1 << endl;
-        } else {
-            int leftSize = N / 2;
-            int rightSize = N - leftSize;
-            map<long long, int> sets;
-            for (int bits = 1; bits < (1 << leftSize); bits++) {
-                int used = 0;
-                long long sum = 0;
-                for (int i = 0; i < leftSize; i++) {
-                    if (get(bits, i)) {
-                        sum += nums[i];
-                        used++;
-                    }
-                }
-                if (sets[sum] == 0) {
-                    sets[sum] = used;
-                } else {
-                    sets[sum] = min(sets[sum], used);
-                }
-            }
-            /*
-            for (auto p : sets) {
-                cout << p.first << "," << p.second << " ";
-            }
-            cout << endl;
-            */
-            pair<long long, int> ans = *findClosest(sets, 0);
-            sets[0] = 0;
-            for (int bits = 1; bits < (1 << rightSize); bits++) {
-                int used = 0;
-                long long sum = 0;
-                for (int i = 0; i < rightSize; i++) {
-                    if (get(bits, i)) {
-                        sum += nums[leftSize + i];
-                        used++;
-                    }
-                }
-                pair<long long, int> closest = *findClosest(sets, -sum);
-                // cout << "Closest to " << sum << " was " << closest.first << endl;
-                if (absVal(closest.first + sum) < ans.first || (absVal(closest.first + sum) == ans.first && closest.second + used < ans.second)) {
-                    ans.first = absVal(closest.first + sum);
-                    ans.second = closest.second + used;
-                }
-            }
-            cout << ans.first << " " << ans.second << endl;
+            continue;
         }
+        solve(N, nums);
     }
     return 0;
 }
